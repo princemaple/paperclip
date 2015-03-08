@@ -158,7 +158,7 @@ module Paperclip
           end
 
           unless @options[:url].to_s.match(/\A:s3.*url\Z/) || @options[:url] == ":asset_host"
-            @options[:path] = @options[:path].gsub(/:url/, @options[:url]).gsub(/\A:rails_root\/public\/system/, '')
+            @options[:path] = path_option.gsub(/:url/, @options[:url]).gsub(/\A:rails_root\/public\/system/, '')
             @options[:url]  = ":s3_path_url"
           end
           @options[:url] = @options[:url].inspect if @options[:url].is_a?(Symbol)
@@ -288,8 +288,7 @@ module Paperclip
       def parse_credentials creds
         creds = creds.respond_to?('call') ? creds.call(self) : creds
         creds = find_credentials(creds).stringify_keys
-        env = Object.const_defined?(:Rails) ? Rails.env : nil
-        (creds[env] || creds).symbolize_keys
+        (creds[RailsEnvironment.get] || creds).symbolize_keys
       end
 
       def exists?(style = default_style)
